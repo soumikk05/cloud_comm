@@ -1,0 +1,6 @@
+metric,value
+accuracy,0.54
+precision_genuine,0.6
+recall_genuine,0.24
+precision_tampered,0.525
+recall_tampered,0.84

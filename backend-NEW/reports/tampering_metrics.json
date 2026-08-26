@@ -1,0 +1,45 @@
+{
+  "status": "trained",
+  "dataset_version": "synthetic_tampering_v1",
+  "num_samples": 100,
+  "test_accuracy": 0.54,
+  "classification_report": {
+    "0.0": {
+      "precision": 0.6,
+      "recall": 0.24,
+      "f1-score": 0.34285714285714286,
+      "support": 50.0
+    },
+    "1.0": {
+      "precision": 0.525,
+      "recall": 0.84,
+      "f1-score": 0.6461538461538462,
+      "support": 50.0
+    },
+    "accuracy": 0.54,
+    "macro avg": {
+      "precision": 0.5625,
+      "recall": 0.54,
+      "f1-score": 0.4945054945054945,
+      "support": 100.0
+    },
+    "weighted avg": {
+      "precision": 0.5625,
+      "recall": 0.54,
+      "f1-score": 0.49450549450549447,
+      "support": 100.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      12,
+      38
+    ],
+    [
+      8,
+      42
+    ]
+  ],
+  "framework": "pytorch/torchvision",
+  "model_version": "1.0.0"
+}

@@ -1,0 +1,3 @@
+image_path,label,attack_type,document_type,split
+dataset/heatmaps/ela_03c4dbe3ae5b4c69bde12699d7040114.png,0,none,unknown,train
+dataset/heatmaps/ela_2455cde732f64fb999513efed0a4e0ea.png,0,none,unknown,train
