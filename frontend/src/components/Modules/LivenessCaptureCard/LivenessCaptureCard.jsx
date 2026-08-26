@@ -26,6 +26,7 @@ export function LivenessCaptureCard({ onVerified, onResetVerified }) {
     verifiedFrameUrl,
     captureProgress,
     videoRef,
+    setVideoRef,
     canvasRef,
     startVerification,
     captureFrameBurst,
@@ -155,7 +156,7 @@ export function LivenessCaptureCard({ onVerified, onResetVerified }) {
         <div className="w-full flex flex-col items-center gap-4">
           <div className="liveness-video-wrap">
             <video
-              ref={videoRef}
+              ref={setVideoRef}
               autoPlay
               playsInline
               muted

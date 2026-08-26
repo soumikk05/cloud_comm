@@ -32,6 +32,35 @@ export function useLivenessCapture({ onVerified } = {}) {
   const streamRef = useRef(null);
   const canvasRef = useRef(null);
 
+  // Helper to attach stream to video element
+  const attachStreamToVideo = useCallback((videoElement, stream) => {
+    if (!videoElement || !stream) return;
+    if (videoElement.srcObject !== stream) {
+      videoElement.srcObject = stream;
+    }
+    videoElement.play().catch((err) => {
+      console.warn('Video auto-play warning:', err);
+    });
+  }, []);
+
+  // Ensure stream is attached whenever state changes and video is in DOM
+  useEffect(() => {
+    if (videoRef.current && streamRef.current) {
+      attachStreamToVideo(videoRef.current, streamRef.current);
+    }
+  }, [state, attachStreamToVideo]);
+
+  // Callback ref for when video element mounts into DOM
+  const setVideoRef = useCallback(
+    (node) => {
+      videoRef.current = node;
+      if (node && streamRef.current) {
+        attachStreamToVideo(node, streamRef.current);
+      }
+    },
+    [attachStreamToVideo]
+  );
+
   // Stop camera tracks cleanly
   const stopCamera = useCallback(() => {
     if (streamRef.current) {
@@ -253,6 +282,7 @@ export function useLivenessCapture({ onVerified } = {}) {
     verifiedFile,
     captureProgress,
     videoRef,
+    setVideoRef,
     canvasRef,
     startVerification,
     captureFrameBurst,
