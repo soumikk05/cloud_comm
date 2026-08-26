@@ -21,16 +21,15 @@ export function TamperingPanel({ tampering }) {
     );
   }
 
-  const {
-    tampering_detected = false,
-    score = 0,
-    ela_score,
-    noise_variance,
-    copy_move_detected = false,
-    details = {},
-  } = tampering;
+  const score = tampering.tampering_score ?? tampering.score ?? 0;
+  const tampering_detected = tampering.tampered ?? tampering.tampering_detected ?? (score > 40);
+  const ela_score = tampering.signals?.ela ?? tampering.detectors?.ela ?? tampering.ela_score;
+  const noise_variance = tampering.noise_variance ?? tampering.details?.noise_variance;
+  const copy_move_detected = tampering.copy_move_detected ?? (tampering.signals?.copy_move > 40) ?? false;
+  const details = tampering.details || {};
 
-  const color = scoreToHex(score);
+  const numScore = typeof score === 'number' ? Math.round(score) : Number(score) || 0;
+  const color = scoreToHex(numScore);
 
   return (
     <Card

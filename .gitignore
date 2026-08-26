@@ -33,12 +33,19 @@ wheels/
 **/.deepface/
 *.h5
 *.weights
+*.db
+backend/dataset/evidence/*
+!backend/dataset/evidence/.gitkeep
+backend/dataset/heatmaps/*
+!backend/dataset/heatmaps/.gitkeep
 
-# Local testing UI
-# frontend/
+# Frontend build & dependencies
+node_modules/
+dist/
 
 # Environment files
 .env
+.env.local
 
 # Testing & Coverage
 .pytest_cache/

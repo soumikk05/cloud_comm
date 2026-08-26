@@ -88,25 +88,35 @@ export const screeningApi = {
   /**
    * Face liveness check.
    */
-  checkLiveness: async (selfieFile) => {
+  checkLiveness: async (selfieFile, challenge = null) => {
     const form = new FormData();
-    form.append('file', selfieFile);
+    form.append('selfie_photo', selfieFile);
+    const params = challenge ? { challenge } : {};
     const response = await apiClient.post('/api/face/liveness', form, {
+      params,
       headers: { 'Content-Type': 'multipart/form-data' }
     });
     return response.data;
   },
 
   /**
-   * Face verification (Document vs Selfie).
+   * Face verification (Document Photo vs Live Selfie).
    */
   verifyFace: async (documentFile, selfieFile) => {
     const form = new FormData();
-    form.append('document_image', documentFile);
-    form.append('selfie_image', selfieFile);
+    form.append('document_photo', documentFile);
+    form.append('selfie_photo', selfieFile);
     const response = await apiClient.post('/api/face/verify', form, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
+    return response.data;
+  },
+
+  /**
+   * Health ping.
+   */
+  checkHealth: async () => {
+    const response = await apiClient.get('/health');
     return response.data;
   }
 };

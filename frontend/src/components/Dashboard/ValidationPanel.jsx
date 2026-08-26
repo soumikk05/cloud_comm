@@ -19,15 +19,16 @@ export function ValidationPanel({ validation }) {
   }
 
   const {
-    status = 'FAIL',
-    score = 0,
+    status,
+    score = validation.consistency_score ?? validation.score ?? (validation.checks?.length ? Math.round((validation.checks.filter(c => c.passed).length / validation.checks.length) * 100) : 0),
     mrz_valid = false,
     checks = [],
     details = {},
   } = validation;
 
-  const color = scoreToHex(score);
-  const isPassed = status === 'PASS' || mrz_valid;
+  const isPassed = validation.overall_valid ?? validation.valid ?? (status === 'PASS') ?? mrz_valid;
+  const numScore = typeof score === 'number' ? Math.round(score) : Number(score) || 0;
+  const color = scoreToHex(numScore);
 
   return (
     <Card

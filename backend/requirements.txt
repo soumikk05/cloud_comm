@@ -8,19 +8,16 @@ fastapi==0.111.0
 uvicorn[standard]==0.30.1
 python-multipart==0.0.9
 pydantic==2.7.4
+python-dotenv==1.0.1
+cryptography==42.0.8
+
+# ---- Database & Audit Trail ----
+sqlalchemy==2.0.30
 
 # ---- OCR ----
 pytesseract==0.3.10
 easyocr==1.7.1
 passporteye==2.2.2
-
-# paddleocr is NOT installed — it is unused by ocr_service.py (only
-# PassportEye + EasyOCR are actually called) and requires the separate
-# `paddlepaddle` backend to even import, which is a slow, failure-prone
-# Windows install for zero functional benefit here. If you ever want to
-# wire it in as a second fallback, uncomment BOTH lines below together:
-# paddleocr==2.7.3
-# paddlepaddle==2.6.1
 
 # ---- Image processing / tampering detection ----
 opencv-python==4.10.0.84
@@ -36,6 +33,10 @@ tf-keras==2.15.0
 # ---- Validation / misc ----
 scikit-learn==1.5.0
 python-dateutil==2.9.0.post0
+
+# ---- Testing ----
+pytest==8.2.2
+httpx==0.27.0
 
 # ============================================================
 # WINDOWS SETUP — READ BEFORE RUNNING pip install
@@ -61,10 +62,5 @@ python-dateutil==2.9.0.post0
 # 4) EASYOCR MODEL WEIGHTS:
 #    Also auto-downloads (~100MB) on first use. Warm up in advance:
 #      python -c "import easyocr; easyocr.Reader(['en'], gpu=False)"
-#
-# 5) NO dlib / face_recognition:
-#    Deliberately avoided — dlib's pip build on Windows frequently fails
-#    without Visual Studio Build Tools installed. DeepFace has no such
-#    dependency, which is why it was chosen for Module 4.
 #
 # ============================================================
