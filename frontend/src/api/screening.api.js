@@ -86,7 +86,33 @@ export const screeningApi = {
   },
 
   /**
-   * Face liveness check.
+   * Request randomized liveness challenge & session token.
+   */
+  getLivenessChallenge: async () => {
+    const response = await apiClient.post('/api/face/liveness-challenge');
+    return response.data;
+  },
+
+  /**
+   * Verify burst of camera frames against session challenge.
+   */
+  verifyLivenessFrames: async (sessionToken, frames) => {
+    const form = new FormData();
+    form.append('session_token', sessionToken);
+    frames.forEach((frame, idx) => {
+      // frame can be a File or a Blob
+      const filename = frame.name || `frame_${idx}.jpg`;
+      form.append('frames', frame, filename);
+    });
+    const response = await apiClient.post('/api/face/liveness-verify', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 15000,
+    });
+    return response.data;
+  },
+
+  /**
+   * Passive face liveness check (single image).
    */
   checkLiveness: async (selfieFile, challenge = null) => {
     const form = new FormData();

@@ -18,28 +18,30 @@ import { screeningApi } from '../../api/screening.api';
 import { ModuleHeader } from './ModuleHeader';
 import { RawJsonViewer } from './RawJsonViewer';
 import { UploadZone } from '../Upload/UploadZone';
+import { LivenessCaptureCard } from './LivenessCaptureCard/LivenessCaptureCard';
 import { Card, Badge, ProgressBar, Spinner } from '../common';
 import { scoreToHex } from '../../utils/helpers';
 
 export function FaceScreen() {
   const [docPhoto, setDocPhoto] = useState(null);
-  const [selfiePhoto, setSelfiePhoto] = useState(null);
-  const [enableLiveness, setEnableLiveness] = useState(true);
+  const [verifiedSelfieFile, setVerifiedSelfieFile] = useState(null);
+  const [activeLivenessData, setActiveLivenessData] = useState(null);
+  const [enablePassiveLiveness, setEnablePassiveLiveness] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [verifyResult, setVerifyResult] = useState(null);
   const [livenessResult, setLivenessResult] = useState(null);
 
   const handleVerify = async () => {
-    if (!docPhoto || !selfiePhoto) return;
+    if (!docPhoto || !verifiedSelfieFile) return;
     setLoading(true);
     setError(null);
 
     try {
-      // Execute 1:1 face verification and liveness check in parallel
-      const promises = [screeningApi.verifyFace(docPhoto, selfiePhoto)];
-      if (enableLiveness) {
-        promises.push(screeningApi.checkLiveness(selfiePhoto));
+      // Execute 1:1 face verification using backend-verified frontal frame
+      const promises = [screeningApi.verifyFace(docPhoto, verifiedSelfieFile)];
+      if (enablePassiveLiveness) {
+        promises.push(screeningApi.checkLiveness(verifiedSelfieFile));
       }
 
       const [verifyData, livenessData] = await Promise.allSettled(promises);
@@ -52,13 +54,20 @@ export function FaceScreen() {
 
       if (livenessData && livenessData.status === 'fulfilled') {
         setLivenessResult(livenessData.value);
+      } else if (activeLivenessData) {
+        // Fallback to active liveness result if passive not run
+        setLivenessResult({
+          live: true,
+          score: activeLivenessData.score ? activeLivenessData.score / 100 : 0.95,
+          detail: 'Active challenge-response motion verified via live camera stream.',
+        });
       }
     } catch (err) {
       console.error(err);
       setError(
         err.response?.data?.detail ||
           err.message ||
-          'Face verification failed. Please ensure both images clearly show human faces.'
+          'Face verification failed. Please ensure both document and selfie clearly show human faces.'
       );
     } finally {
       setLoading(false);
@@ -67,7 +76,8 @@ export function FaceScreen() {
 
   const handleReset = () => {
     setDocPhoto(null);
-    setSelfiePhoto(null);
+    setVerifiedSelfieFile(null);
+    setActiveLivenessData(null);
     setVerifyResult(null);
     setLivenessResult(null);
     setError(null);
@@ -94,7 +104,7 @@ export function FaceScreen() {
       <ModuleHeader
         badge="MODULE 05"
         title="Biometric Face Verification"
-        subtitle="1:1 Vector Cosine Similarity & Liveness Verification via DeepFace neural embeddings."
+        subtitle="1:1 Vector Cosine Similarity & Active Challenge-Response Liveness via DeepFace neural embeddings."
         icon={ScanFace}
         endpoint="POST /api/face/verify & /liveness"
         actions={
@@ -149,46 +159,55 @@ export function FaceScreen() {
         )}
       </AnimatePresence>
 
-      {/* Upload Dual Form */}
+      {/* Upload & Camera Verification Form */}
       {!verifyResult && !loading && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <UploadZone
               label="1. Document Portrait / ID Photo"
-              hint="Extracted face crop or full ID document image"
+              hint="Extracted face crop or full ID document image (JPG, PNG)"
               icon={ScanFace}
               file={docPhoto}
               onFileChange={setDocPhoto}
             />
-            <UploadZone
-              label="2. Live Selfie Image"
-              hint="Live capture or camera photo of the applicant"
-              icon={Camera}
-              file={selfiePhoto}
-              onFileChange={setSelfiePhoto}
+
+            <LivenessCaptureCard
+              onVerified={(verifiedBlob, responseData) => {
+                setVerifiedSelfieFile(verifiedBlob);
+                setActiveLivenessData(responseData);
+              }}
+              onResetVerified={() => {
+                setVerifiedSelfieFile(null);
+                setActiveLivenessData(null);
+              }}
             />
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-xl bg-black/30 border border-white/5">
-            <label className="flex items-center gap-3 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={enableLiveness}
-                onChange={(e) => setEnableLiveness(e.target.checked)}
-                className="w-4 h-4 rounded border-white/20 bg-black/50 text-cyan-500 focus:ring-0 cursor-pointer"
-              />
-              <span className="font-mono text-xs text-slate-300">
-                Execute Passive Liveness & Anti-Spoofing Check
-              </span>
-            </label>
+            <div className="flex flex-col gap-1">
+              <label className="flex items-center gap-3 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={enablePassiveLiveness}
+                  onChange={(e) => setEnablePassiveLiveness(e.target.checked)}
+                  className="w-4 h-4 rounded border-white/20 bg-black/50 text-cyan-500 focus:ring-0 cursor-pointer"
+                />
+                <span className="font-mono text-xs text-slate-200 font-bold">
+                  Execute Passive Liveness & Anti-Spoofing Check
+                </span>
+              </label>
+              <p className="text-[11px] font-mono text-slate-400 pl-7">
+                Active challenge-response verification (blink/turn/smile) always runs during camera capture. This option additionally screens the captured frame for print/screen-replay artifacts.
+              </p>
+            </div>
 
             <motion.button
               whileHover={{ scale: 1.02, boxShadow: '0 0 25px rgba(6, 182, 212, 0.4)' }}
               whileTap={{ scale: 0.98 }}
-              disabled={!docPhoto || !selfiePhoto || loading}
+              disabled={!docPhoto || !verifiedSelfieFile || loading}
               onClick={handleVerify}
-              className={`flex items-center gap-3 px-6 py-3 rounded-xl font-mono text-sm font-bold tracking-wider uppercase transition-all ${
-                docPhoto && selfiePhoto
+              className={`flex items-center gap-3 px-6 py-3 rounded-xl font-mono text-sm font-bold tracking-wider uppercase transition-all shrink-0 ${
+                docPhoto && verifiedSelfieFile
                   ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg cursor-pointer'
                   : 'bg-white/5 border border-white/10 text-slate-500 cursor-not-allowed'
               }`}
