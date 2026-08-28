@@ -20,7 +20,7 @@ import { screeningApi } from '../../api/screening.api';
 import { ModuleHeader } from './ModuleHeader';
 import { RawJsonViewer } from './RawJsonViewer';
 import { UploadZone } from '../Upload/UploadZone';
-import { Card, Badge, ProgressBar, Spinner, CheckItem } from '../common';
+import { Card, Badge, ProgressBar, Skeleton, CheckItem } from '../common';
 import { scoreToHex } from '../../utils/helpers';
 
 export function TamperingScreen() {
@@ -116,27 +116,52 @@ export function TamperingScreen() {
         </motion.div>
       )}
 
-      {/* Loading Overlay */}
-      <AnimatePresence>
-        {loading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="p-8 rounded-2xl bg-black/60 border border-cyan-500/30 backdrop-blur-xl flex flex-col items-center justify-center text-center gap-4 my-8 shadow-[0_0_50px_rgba(6,182,212,0.15)]"
-          >
-            <Spinner size="lg" />
-            <div>
-              <h3 className="font-mono text-lg font-bold text-white tracking-wider">
-                Scanning Compression Artifacts & Neural Heatmaps…
-              </h3>
-              <p className="text-xs text-slate-400 font-mono mt-1">
-                Computing 90-85% recompression delta, ORB keypoint clustering & CNN spatial features...
-              </p>
+      {/* Loading Skeleton */}
+      {loading && (
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-6"
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Card icon={Scan} title={<Skeleton width="180px" height="18px" />} subtitle={<Skeleton width="240px" height="13px" />}>
+              <div className="py-2 flex flex-col items-center gap-3">
+                <Skeleton variant="text" width="120px" height="48px" />
+                <Skeleton variant="rounded" width="100%" height="8px" />
+                <Skeleton variant="text" width="200px" height="12px" />
+              </div>
+            </Card>
+
+            <Card title={<Skeleton width="260px" height="18px" />} subtitle={<Skeleton width="280px" height="13px" />} className="lg:col-span-2">
+              <div className="space-y-4 mt-2">
+                <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/10 flex items-center justify-between">
+                  <div>
+                    <Skeleton variant="text" width="140px" />
+                    <Skeleton variant="text" width="80px" height="28px" style={{ marginTop: '4px' }} />
+                  </div>
+                  <Skeleton variant="rounded" width="160px" height="28px" />
+                </div>
+                <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/10">
+                  <Skeleton variant="text" width="120px" />
+                  <Skeleton variant="text" width="90%" style={{ marginTop: '8px' }} />
+                </div>
+              </div>
+            </Card>
+          </div>
+
+          <Card title={<Skeleton width="200px" height="18px" />} subtitle={<Skeleton width="260px" height="13px" />}>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="p-3.5 rounded-xl bg-white/[0.02] border border-white/10">
+                  <Skeleton variant="text" width="60%" />
+                  <Skeleton variant="text" width="70px" height="24px" style={{ marginTop: '8px' }} />
+                  <Skeleton variant="text" width="50%" style={{ marginTop: '8px' }} />
+                </div>
+              ))}
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </Card>
+        </motion.div>
+      )}
 
       {/* Upload Form */}
       {!tamperingResult && !loading && (
@@ -222,9 +247,9 @@ export function TamperingScreen() {
                       <div className="text-xs font-mono text-slate-400">CNN FORGERY PROBABILITY</div>
                       <div
                         className="text-2xl font-mono font-bold mt-0.5"
-                        style={{ color: scoreToHex(cnnResult.cnn_score * 100) }}
+                        style={{ color: scoreToHex(cnnResult.cnn_score) }}
                       >
-                        {(cnnResult.cnn_score * 100).toFixed(1)}%
+                        {cnnResult.cnn_score.toFixed(1)}%
                       </div>
                     </div>
                     <Badge
@@ -258,8 +283,8 @@ export function TamperingScreen() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
               {Object.keys(detectors).length > 0 ? (
                 Object.entries(detectors).map(([key, val]) => {
-                  const detVal = typeof val === 'number' ? (val * 100).toFixed(1) : String(val);
-                  const isHigh = typeof val === 'number' && val > 0.4;
+                  const detVal = typeof val === 'number' ? val.toFixed(1) : String(val);
+                  const isHigh = typeof val === 'number' && val > 40;
                   return (
                     <div
                       key={key}
@@ -305,7 +330,7 @@ export function TamperingScreen() {
                     key={idx}
                     name={chk.name}
                     passed={!chk.triggered}
-                    reason={`${chk.detail} (Score: ${(chk.score * 100).toFixed(1)}%)`}
+                    reason={`${chk.detail} (Score: ${chk.score?.toFixed(1)}%)`}
                     delay={idx * 0.05}
                   />
                 ))}

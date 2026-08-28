@@ -35,12 +35,16 @@ export function useLivenessCapture({ onVerified } = {}) {
   // Helper to attach stream to video element
   const attachStreamToVideo = useCallback((videoElement, stream) => {
     if (!videoElement || !stream) return;
-    if (videoElement.srcObject !== stream) {
-      videoElement.srcObject = stream;
-    }
-    videoElement.play().catch((err) => {
-      console.warn('Video auto-play warning:', err);
-    });
+    
+    // Slight delay to ensure DOM is fully ready for play()
+    setTimeout(() => {
+      if (videoElement.srcObject !== stream) {
+        videoElement.srcObject = stream;
+      }
+      videoElement.play().catch((err) => {
+        console.warn('Video auto-play warning:', err);
+      });
+    }, 50);
   }, []);
 
   // Ensure stream is attached whenever state changes and video is in DOM

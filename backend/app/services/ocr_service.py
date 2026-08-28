@@ -218,11 +218,11 @@ def _extract_via_easyocr(image_path: str, expected_type: Optional[str] = None) -
         fields.update({
             "license_number": doc_num,
             "name": probable_name,
-            "dob": dates_found[0] if dates_found else "",
-            "date_of_birth": dates_found[0] if dates_found else "",
             "issue_date": dates_found[0] if dates_found else "",
             "expiry_date": dates_found[1] if len(dates_found) > 1 else "",
             "expiration_date": dates_found[1] if len(dates_found) > 1 else "",
+            "dob": dates_found[2] if len(dates_found) > 2 else "",
+            "date_of_birth": dates_found[2] if len(dates_found) > 2 else "",
             "vehicle_class": "LMV" if "lmv" in lowered else ("MCWG" if "mcwg" in lowered else "Class C"),
         })
     elif detected_type == "permit":

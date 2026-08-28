@@ -73,3 +73,13 @@ export function scoreToHex(score) {
   if (score <= 65)  return '#F59E0B';
   return '#F43F5E';
 }
+
+/**
+ * Returns an interpolated colour between red, amber, and green based on confidence (0-100).
+ * Higher is greener.
+ */
+export function confidenceToHex(score) {
+  if (score >= 70)  return '#10B981';
+  if (score >= 40)  return '#F59E0B';
+  return '#F43F5E';
+}

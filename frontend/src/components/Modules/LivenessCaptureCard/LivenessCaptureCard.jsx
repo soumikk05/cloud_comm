@@ -161,6 +161,9 @@ export function LivenessCaptureCard({ onVerified, onResetVerified }) {
               playsInline
               muted
               className="liveness-video"
+              onLoadedMetadata={(e) => {
+                e.target.play().catch(err => console.warn('Video auto-play warning:', err));
+              }}
             />
 
             {/* Cyber HUD Target Overlay */}

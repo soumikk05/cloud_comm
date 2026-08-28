@@ -17,7 +17,8 @@ import { screeningApi } from '../../api/screening.api';
 import { ModuleHeader } from './ModuleHeader';
 import { RawJsonViewer } from './RawJsonViewer';
 import { UploadZone } from '../Upload/UploadZone';
-import { Card, Badge, ProgressBar, Spinner, CheckItem } from '../common';
+import { LivenessCaptureCard } from './LivenessCaptureCard/LivenessCaptureCard';
+import { Card, Badge, ProgressBar, Skeleton, CheckItem } from '../common';
 import { RiskGauge } from '../Dashboard/RiskGauge';
 import { OcrResults } from '../Dashboard/OcrResults';
 import { ValidationPanel } from '../Dashboard/ValidationPanel';
@@ -128,28 +129,65 @@ export function PipelineScreen() {
         </motion.div>
       )}
 
-      {/* Loading Overlay State */}
-      <AnimatePresence>
-        {loading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="p-8 rounded-2xl bg-black/60 border border-cyan-500/30 backdrop-blur-xl flex flex-col items-center justify-center text-center gap-4 my-8 shadow-[0_0_50px_rgba(6,182,212,0.15)]"
-          >
-            <Spinner size="lg" />
-            <div>
-              <h3 className="font-mono text-lg font-bold text-white tracking-wider">
-                {status || 'Neural Pipeline Executing…'}
-              </h3>
-              <p className="text-xs text-slate-400 font-mono mt-1 max-w-md mx-auto">
-                Executing OCR extraction, MRZ checksums, ELA forensics
-                {selfieFile ? ' & 512d face embeddings' : ''}...
-              </p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Loading Skeleton */}
+      {loading && (
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-8"
+        >
+          {/* Top Score Row Skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Card className="lg:col-span-1">
+              <div className="flex flex-col items-center py-6 gap-4">
+                <Skeleton variant="circular" width="140px" height="140px" />
+                <Skeleton variant="text" width="100px" height="20px" />
+                <Skeleton variant="text" width="60px" height="14px" />
+              </div>
+            </Card>
+
+            <Card
+              title={<Skeleton width="240px" height="20px" />}
+              subtitle={<Skeleton width="300px" height="14px" />}
+              icon={Layers}
+              className="lg:col-span-2"
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="p-4 rounded-xl bg-white/[0.02] border border-white/10">
+                    <Skeleton variant="text" width="60%" />
+                    <Skeleton variant="text" width="80px" height="28px" style={{ marginTop: '12px' }} />
+                    <Skeleton variant="rounded" width="100%" height="6px" style={{ marginTop: '12px' }} />
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
+
+          {/* Module Panels Skeleton */}
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            {[1, 2, 3, 4].map((i) => (
+              <Card key={i} title={<Skeleton width="200px" height="18px" />} subtitle={<Skeleton width="260px" height="13px" />}>
+                <div className="space-y-3 mt-3">
+                  {[1, 2, 3].map((j) => (
+                    <div key={j} className="p-3 rounded-lg bg-white/[0.01] border border-white/5">
+                      <Skeleton variant="text" width={`${40 + j * 15}%`} />
+                      <Skeleton variant="text" width={`${60 + j * 5}%`} />
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            ))}
+          </div>
+
+          {/* Status text */}
+          <div className="text-center">
+            <p className="text-xs text-slate-400 font-mono animate-pulse">
+              {status || 'Executing full multimodal forensic pipeline...'}
+            </p>
+          </div>
+        </motion.div>
+      )}
 
       {/* Upload Zone Form (Shown if no result yet or user wants to re-scan) */}
       {!result && !loading && (
@@ -162,12 +200,14 @@ export function PipelineScreen() {
               file={docFile}
               onFileChange={setDocFile}
             />
-            <UploadZone
-              label="Live Selfie Photo (Optional)"
-              hint="For 1:1 facial biometric matching"
-              icon={ScanFace}
-              file={selfieFile}
-              onFileChange={setSelfieFile}
+
+            <LivenessCaptureCard
+              onVerified={(verifiedBlob) => {
+                setSelfieFile(verifiedBlob);
+              }}
+              onResetVerified={() => {
+                setSelfieFile(null);
+              }}
             />
           </div>
 
@@ -268,13 +308,11 @@ export function PipelineScreen() {
               {reasons.length > 0 && (
                 <div className="mt-4 pt-4 border-t border-white/10">
                   <span className="text-xs font-mono text-slate-400">PRIMARY RISK FACTORS:</span>
-                  <div className="mt-2 space-y-1">
-                    {reasons.map((r, idx) => (
-                      <div key={idx} className="flex items-center gap-2 text-xs font-mono text-amber-300/90">
-                        <span className="text-amber-400">›</span>
-                        <span>{r}</span>
-                      </div>
-                    ))}
+                  <div className="mt-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300/90 font-mono text-xs flex items-center gap-2">
+                    <span className="text-amber-400">›</span>
+                    <span>
+                      Detected {reasons.length} risk flag{reasons.length > 1 ? 's' : ''}. Check the Automated Risk & Anomaly Flags section below for detailed info.
+                    </span>
                   </div>
                 </div>
               )}

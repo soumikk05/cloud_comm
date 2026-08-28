@@ -6,6 +6,7 @@ export { AnimatedText } from './AnimatedBg';
 export { CyberText } from './CyberText';
 export { HeroIntro } from './HeroIntro';
 export { FloatingElements } from './FloatingElements';
+export { Skeleton } from './Skeleton';
 
 /**
  * Glassmorphic interactive Card with Motion hover animations
@@ -29,7 +30,7 @@ export function Card({
       transition={{ duration: 0.5, delay, ease: [0.16, 1, 0.3, 1] }}
       whileHover={{
         y: -4,
-        boxShadow: `0 12px 30px -10px rgba(0, 0, 0, 0.7), 0 0 25px ${glowColor}`,
+        boxShadow: `0 12px 30px -10px rgba(0, 0, 0, 0.7)`,
         borderColor: 'rgba(255, 255, 255, 0.2)',
       }}
       className={`card ${className}`}

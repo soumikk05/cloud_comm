@@ -19,7 +19,7 @@ import { ModuleHeader } from './ModuleHeader';
 import { RawJsonViewer } from './RawJsonViewer';
 import { UploadZone } from '../Upload/UploadZone';
 import { LivenessCaptureCard } from './LivenessCaptureCard/LivenessCaptureCard';
-import { Card, Badge, ProgressBar, Spinner } from '../common';
+import { Card, Badge, ProgressBar, Skeleton } from '../common';
 import { scoreToHex } from '../../utils/helpers';
 
 export function FaceScreen() {
@@ -137,27 +137,45 @@ export function FaceScreen() {
         </motion.div>
       )}
 
-      {/* Loading Overlay */}
-      <AnimatePresence>
-        {loading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="p-8 rounded-2xl bg-black/60 border border-cyan-500/30 backdrop-blur-xl flex flex-col items-center justify-center text-center gap-4 my-8 shadow-[0_0_50px_rgba(6,182,212,0.15)]"
-          >
-            <Spinner size="lg" />
-            <div>
-              <h3 className="font-mono text-lg font-bold text-white tracking-wider">
-                Generating 512d Face Embeddings…
-              </h3>
-              <p className="text-xs text-slate-400 font-mono mt-1">
-                Aligning facial landmarks, normalizing illumination & computing vector distance...
-              </p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Loading Skeleton */}
+      {loading && (
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-6"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card icon={ScanFace} title={<Skeleton width="200px" height="18px" />} subtitle={<Skeleton width="260px" height="13px" />}>
+              <div className="py-4 flex flex-col items-center gap-4">
+                <div className="flex items-center gap-6">
+                  <Skeleton variant="circular" width="80px" height="80px" />
+                  <Skeleton variant="text" width="40px" height="24px" />
+                  <Skeleton variant="circular" width="80px" height="80px" />
+                </div>
+                <Skeleton variant="text" width="140px" height="32px" />
+                <Skeleton variant="rounded" width="100%" height="8px" />
+              </div>
+            </Card>
+
+            <Card title={<Skeleton width="180px" height="18px" />} subtitle={<Skeleton width="220px" height="13px" />}>
+              <div className="space-y-3 mt-2">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="p-3 rounded-lg bg-white/[0.01] border border-white/5 flex items-center justify-between">
+                    <Skeleton variant="text" width="40%" />
+                    <Skeleton variant="text" width="60px" />
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
+
+          <div className="text-center">
+            <p className="text-xs text-slate-400 font-mono animate-pulse">
+              Generating 512d Face Embeddings & computing vector distance...
+            </p>
+          </div>
+        </motion.div>
+      )}
 
       {/* Upload & Camera Verification Form */}
       {!verifyResult && !loading && (

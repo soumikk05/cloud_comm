@@ -9,13 +9,8 @@ import { HistoryPage } from './components/History/HistoryPage';
 import { AdminPage } from './components/Admin/AdminPage';
 import { DashboardRoute } from './components/Dashboard/DashboardRoute';
 
-// Modular Sidebar Layout & Screens
 import { ScreeningLayout } from './components/Layout/ScreeningLayout';
-import { PipelineScreen } from './components/Modules/PipelineScreen';
-import { OcrScreen } from './components/Modules/OcrScreen';
-import { ValidationScreen } from './components/Modules/ValidationScreen';
-import { TamperingScreen } from './components/Modules/TamperingScreen';
-import { FaceScreen } from './components/Modules/FaceScreen';
+import { ScreeningViews } from './components/Layout/ScreeningViews';
 
 import { useAuth } from './hooks/useAuth';
 
@@ -44,53 +39,20 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
 
           {/* Protected Modular Screening Routes */}
-          <Route path="/" element={
+          <Route element={
             <RequireAuth>
               <ScreeningLayout>
-                <PipelineScreen />
+                <ScreeningViews />
               </ScreeningLayout>
             </RequireAuth>
-          } />
-
-          <Route path="/pipeline" element={
-            <RequireAuth>
-              <ScreeningLayout>
-                <PipelineScreen />
-              </ScreeningLayout>
-            </RequireAuth>
-          } />
-
-          <Route path="/ocr" element={
-            <RequireAuth>
-              <ScreeningLayout>
-                <OcrScreen />
-              </ScreeningLayout>
-            </RequireAuth>
-          } />
-
-          <Route path="/validation" element={
-            <RequireAuth>
-              <ScreeningLayout>
-                <ValidationScreen />
-              </ScreeningLayout>
-            </RequireAuth>
-          } />
-
-          <Route path="/tampering" element={
-            <RequireAuth>
-              <ScreeningLayout>
-                <TamperingScreen />
-              </ScreeningLayout>
-            </RequireAuth>
-          } />
-
-          <Route path="/face" element={
-            <RequireAuth>
-              <ScreeningLayout>
-                <FaceScreen />
-              </ScreeningLayout>
-            </RequireAuth>
-          } />
+          }>
+            <Route path="/" element={<></>} />
+            <Route path="/pipeline" element={<></>} />
+            <Route path="/ocr" element={<></>} />
+            <Route path="/validation" element={<></>} />
+            <Route path="/tampering" element={<></>} />
+            <Route path="/face" element={<></>} />
+          </Route>
 
           {/* Audit History, Case Dashboard & Administration */}
           <Route path="/history" element={

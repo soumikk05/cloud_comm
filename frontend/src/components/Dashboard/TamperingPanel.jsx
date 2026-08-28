@@ -67,7 +67,7 @@ export function TamperingPanel({ tampering }) {
               <span>Error Level Analysis (ELA)</span>
             </div>
             <div className="forensic-card__val">
-              {typeof ela_score === 'number' ? `${(ela_score * 100).toFixed(1)}%` : ela_score}
+              {typeof ela_score === 'number' ? `${ela_score.toFixed(1)}%` : ela_score}
             </div>
             <div className="forensic-card__desc">Compression anomaly rate across 90-85% recompression delta</div>
           </motion.div>

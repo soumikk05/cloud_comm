@@ -18,7 +18,7 @@ import {
 import { screeningApi } from '../../api/screening.api';
 import { ModuleHeader } from './ModuleHeader';
 import { RawJsonViewer } from './RawJsonViewer';
-import { Card, Badge, CheckItem, Spinner, ProgressBar } from '../common';
+import { Card, Badge, CheckItem, Skeleton, ProgressBar } from '../common';
 import { UploadZone } from '../Upload/UploadZone';
 
 const SAMPLE_PASSPORT_JSON = {
@@ -180,27 +180,50 @@ export function ValidationScreen() {
         </motion.div>
       )}
 
-      {/* Loading */}
-      <AnimatePresence>
-        {loading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="p-8 rounded-2xl bg-black/60 border border-cyan-500/30 backdrop-blur-xl flex flex-col items-center justify-center text-center gap-4 my-8 shadow-[0_0_50px_rgba(6,182,212,0.15)]"
-          >
-            <Spinner size="lg" />
-            <div>
-              <h3 className="font-mono text-lg font-bold text-white tracking-wider">
-                Verifying Logical Rules & Checksums…
-              </h3>
-              <p className="text-xs text-slate-400 font-mono mt-1">
-                Executing 7-3-1 weight algorithms, date parity, and format integrity checks...
-              </p>
+      {/* Loading Skeleton */}
+      {loading && (
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-6"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card icon={ShieldCheck} title={<Skeleton width="200px" height="18px" />} subtitle={<Skeleton width="160px" height="13px" />}>
+              <div className="py-4 flex flex-col items-center gap-3">
+                <Skeleton variant="text" width="120px" height="36px" />
+                <Skeleton variant="text" width="200px" height="12px" />
+              </div>
+            </Card>
+
+            <Card title={<Skeleton width="180px" height="18px" />} subtitle={<Skeleton width="240px" height="13px" />} className="md:col-span-2">
+              <div className="grid grid-cols-2 gap-4 mt-2">
+                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/10">
+                  <Skeleton variant="text" width="80px" />
+                  <Skeleton variant="text" width="50px" height="28px" style={{ marginTop: '8px' }} />
+                </div>
+                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/10">
+                  <Skeleton variant="text" width="80px" />
+                  <Skeleton variant="text" width="50px" height="28px" style={{ marginTop: '8px' }} />
+                </div>
+              </div>
+            </Card>
+          </div>
+
+          <Card title={<Skeleton width="220px" height="18px" />} subtitle={<Skeleton width="200px" height="13px" />}>
+            <div className="space-y-2 mt-2">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.01] border border-white/5">
+                  <Skeleton variant="circular" width="28px" height="28px" />
+                  <div style={{ flex: 1 }}>
+                    <Skeleton variant="text" width={`${50 + i * 8}%`} />
+                    <Skeleton variant="text" width={`${30 + i * 10}%`} />
+                  </div>
+                </div>
+              ))}
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </Card>
+        </motion.div>
+      )}
 
       {/* Input Mode Selector & Editor (If no result or user editing) */}
       {!result && !loading && (

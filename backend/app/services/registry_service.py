@@ -130,7 +130,7 @@ def check_duplicate_identity(
         return {
             "is_duplicate": is_duplicate,
             "matched_record_ids": list(set(matched_ids)),
-            "flags": flags,
+            "flags": list(dict.fromkeys(flags)),
         }
     except Exception as exc:
         logger.warning("Duplicate identity check query failed: %s", exc)

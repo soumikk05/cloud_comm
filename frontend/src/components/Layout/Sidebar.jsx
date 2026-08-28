@@ -96,7 +96,38 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="sidebar">
+    <motion.aside
+      animate={{ 
+        y: [-4, 4, -2, 5, -4],
+        rotateZ: [-0.5, 0.3, -0.4, 0.5, -0.5],
+        boxShadow: [
+          "0 8px 32px rgba(6, 182, 212, 0.15)",
+          "0 8px 48px rgba(6, 182, 212, 0.4)",
+          "0 8px 24px rgba(168, 85, 247, 0.2)",
+          "0 8px 40px rgba(6, 182, 212, 0.3)",
+          "0 8px 32px rgba(6, 182, 212, 0.15)"
+        ]
+      }}
+      transition={{
+        duration: 8,
+        repeat: Infinity,
+        ease: "easeInOut",
+        times: [0, 0.25, 0.5, 0.75, 1]
+      }}
+      className="sidebar overflow-hidden"
+    >
+      {/* Decorative corner accents with continuous pulse */}
+      <motion.div 
+        animate={{ opacity: [0.5, 1, 0.5] }}
+        transition={{ duration: 3, repeat: Infinity }}
+        className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-cyan-500/80 rounded-tl-xl pointer-events-none" 
+      />
+      <motion.div 
+        animate={{ opacity: [1, 0.5, 1] }}
+        transition={{ duration: 4, repeat: Infinity }}
+        className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-cyan-500/80 rounded-br-xl pointer-events-none" 
+      />
+
       {/* Sidebar Top Header */}
       <div className="sidebar__header flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -145,44 +176,7 @@ export function Sidebar() {
 
       {/* Pinned Backend Health Card */}
       <div className="sidebar__health">
-        <div className="sidebar__health-top">
-          <div className="sidebar__health-status">
-            <span
-              className={`sidebar__health-dot ${
-                healthStatus.online
-                  ? 'sidebar__health-dot--online'
-                  : 'sidebar__health-dot--offline'
-              }`}
-            />
-            <span
-              style={{
-                color: healthStatus.online ? '#10B981' : '#F43F5E',
-              }}
-            >
-              {healthStatus.loading
-                ? 'CHECKING...'
-                : healthStatus.online
-                ? 'ONLINE'
-                : 'OFFLINE'}
-            </span>
-          </div>
-
-          <button
-            onClick={checkServerHealth}
-            className="text-slate-400 hover:text-cyan-400 transition-colors p-1"
-            title="Refresh Health Status"
-          >
-            <RefreshCw size={12} className={healthStatus.loading ? 'animate-spin' : ''} />
-          </button>
-        </div>
-
         <div className="sidebar__health-meta">
-          <div className="flex items-center justify-between">
-            <span className="flex items-center gap-1">
-              <Server size={10} /> API Host
-            </span>
-            <span className="text-slate-300">127.0.0.1:8000</span>
-          </div>
           {healthStatus.online && (
             <div className="flex items-center justify-between">
               <span className="flex items-center gap-1">
@@ -199,6 +193,6 @@ export function Sidebar() {
           )}
         </div>
       </div>
-    </aside>
+    </motion.aside>
   );
 }

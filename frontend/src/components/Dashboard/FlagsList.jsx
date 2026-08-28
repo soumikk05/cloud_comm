@@ -35,7 +35,7 @@ export function FlagsList({ flags = [] }) {
 
   const getFlagSeverity = (flag) => {
     const text = (typeof flag === 'string' ? flag : flag.message || flag.name || '').toLowerCase();
-    if (text.includes('tamper') || text.includes('fake') || text.includes('fail') || text.includes('mismatch')) {
+    if (text.includes('tamper') || text.includes('fake') || text.includes('fail') || text.includes('mismatch') || text.includes('conflict') || text.includes('duplicate') || text.includes('replay') || text.includes('multiple')) {
       return 'high';
     }
     if (text.includes('warn') || text.includes('expired') || text.includes('missing') || text.includes('low')) {

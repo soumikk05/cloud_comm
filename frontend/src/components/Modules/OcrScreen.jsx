@@ -21,7 +21,16 @@ import { screeningApi } from '../../api/screening.api';
 import { ModuleHeader } from './ModuleHeader';
 import { RawJsonViewer } from './RawJsonViewer';
 import { UploadZone } from '../Upload/UploadZone';
-import { Card, Badge, Spinner } from '../common';
+import { Card, Badge, Skeleton } from '../common';
+
+const getFieldText = (val) => {
+  if (val === null || val === undefined) return null;
+  if (typeof val === 'object') {
+    if (val.value !== undefined && val.value !== null) return String(val.value);
+    return JSON.stringify(val);
+  }
+  return String(val);
+};
 
 export function OcrScreen() {
   const navigate = useNavigate();
@@ -80,43 +89,49 @@ export function OcrScreen() {
     {
       key: 'document_number',
       label: 'Document Number',
-      value: fields.document_number || fields.doc_number || fields.passport_number,
+      value: getFieldText(fields.document_number) || getFieldText(fields.doc_number) || getFieldText(fields.passport_number),
       icon: Hash,
     },
     {
       key: 'name',
       label: 'Holder Name',
-      value: fields.name || fields.full_name || `${fields.given_names || ''} ${fields.surname || ''}`.trim(),
+      value: getFieldText(fields.name) || getFieldText(fields.full_name) || `${getFieldText(fields.given_names) || ''} ${getFieldText(fields.surname) || ''}`.trim(),
       icon: User,
     },
     {
       key: 'nationality',
       label: 'Nationality / Country',
-      value: fields.nationality || fields.country || fields.state,
+      value: getFieldText(fields.nationality) || getFieldText(fields.country) || getFieldText(fields.state),
       icon: Globe,
     },
     {
       key: 'dob',
       label: 'Date of Birth',
-      value: fields.dob || fields.date_of_birth,
+      value: getFieldText(fields.dob) || getFieldText(fields.date_of_birth),
+      icon: Calendar,
+    },
+    {
+      key: 'issue_date',
+      label: 'Date of Issue',
+      value: getFieldText(fields.issue_date),
       icon: Calendar,
     },
     {
       key: 'expiry_date',
       label: 'Expiration Date',
-      value: fields.expiry_date || fields.expiration_date,
+      value: getFieldText(fields.expiry_date) || getFieldText(fields.expiration_date),
       icon: Calendar,
     },
     {
       key: 'sex',
       label: 'Sex / Gender',
-      value: fields.sex || fields.gender,
+      value: getFieldText(fields.sex) || getFieldText(fields.gender),
       icon: User,
     },
     {
       key: 'personal_number',
       label: 'Personal ID No',
-      value: fields.personal_number || fields.national_id,
+      value: getFieldText(fields.personal_number) || getFieldText(fields.national_id),
       icon: Fingerprint,
     },
   ].filter((f) => f.value && f.value !== '');
@@ -140,6 +155,7 @@ export function OcrScreen() {
         'date_of_birth',
         'expiry_date',
         'expiration_date',
+        'issue_date',
         'sex',
         'gender',
         'personal_number',
@@ -200,27 +216,46 @@ export function OcrScreen() {
         </motion.div>
       )}
 
-      {/* Loading Overlay */}
-      <AnimatePresence>
-        {loading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="p-8 rounded-2xl bg-black/60 border border-cyan-500/30 backdrop-blur-xl flex flex-col items-center justify-center text-center gap-4 my-8 shadow-[0_0_50px_rgba(6,182,212,0.15)]"
+      {/* Loading Skeleton */}
+      {loading && (
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-6"
+        >
+          <div className="p-4 rounded-xl bg-black/40 border border-white/10 flex items-center justify-between">
+            <Skeleton width="180px" height="24px" />
+            <Skeleton width="120px" height="24px" />
+          </div>
+
+          <Card
+            title={<Skeleton width="220px" height="20px" />}
+            subtitle={<Skeleton width="280px" height="14px" />}
+            icon={FileText}
           >
-            <Spinner size="lg" />
-            <div>
-              <h3 className="font-mono text-lg font-bold text-white tracking-wider">
-                Extracting Document Fields…
-              </h3>
-              <p className="text-xs text-slate-400 font-mono mt-1">
-                Parsing PassportEye MRZ patterns & neural text bounding boxes...
-              </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-2">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="p-3.5 rounded-xl bg-white/[0.02] border border-white/10 flex flex-col justify-between" style={{ height: '90px' }}>
+                  <Skeleton variant="text" width="40%" />
+                  <Skeleton variant="text" width="70%" />
+                </div>
+              ))}
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            
+            <div className="mt-6 pt-4 border-t border-white/10">
+               <Skeleton variant="text" width="200px" />
+               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-3">
+                 {[1, 2, 3].map((i) => (
+                   <div key={i} className="p-3 rounded-lg bg-white/[0.01] border border-white/5">
+                     <Skeleton variant="text" width="50%" />
+                     <Skeleton variant="text" width="80%" />
+                   </div>
+                 ))}
+               </div>
+            </div>
+          </Card>
+        </motion.div>
+      )}
 
       {/* Upload Zone */}
       {!result && !loading && (
@@ -350,7 +385,7 @@ export function OcrScreen() {
                     >
                       <div className="text-slate-400 capitalize">{k.replace(/_/g, ' ')}:</div>
                       <div className="text-cyan-200 mt-0.5 break-all font-semibold">
-                        {typeof v === 'object' ? JSON.stringify(v) : String(v)}
+                        {getFieldText(v)}
                       </div>
                     </div>
                   ))}

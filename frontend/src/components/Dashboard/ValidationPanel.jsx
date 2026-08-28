@@ -7,7 +7,7 @@ import {
   Fingerprint,
 } from 'lucide-react';
 import { Card, Badge, CheckItem, ProgressBar } from '../common';
-import { scoreToHex } from '../../utils/helpers';
+import { confidenceToHex } from '../../utils/helpers';
 
 export function ValidationPanel({ validation }) {
   if (!validation) {
@@ -28,7 +28,7 @@ export function ValidationPanel({ validation }) {
 
   const isPassed = validation.overall_valid ?? validation.valid ?? (status === 'PASS') ?? mrz_valid;
   const numScore = typeof score === 'number' ? Math.round(score) : Number(score) || 0;
-  const color = scoreToHex(numScore);
+  const color = confidenceToHex(numScore);
 
   return (
     <Card
